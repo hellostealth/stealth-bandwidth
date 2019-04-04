@@ -2,8 +2,6 @@
 
 The [Stealth](https://github.com/whoisblackops/stealth) Bandwidth SMS driver adds the ability to build your bot using Bandwidth's SMS service.
 
-[![Gem Version](https://badge.fury.io/rb/stealth-bandwidth.svg)](https://badge.fury.io/rb/stealth-bandwidth)
-
 ## Supported Reply Types
 
 * Text
