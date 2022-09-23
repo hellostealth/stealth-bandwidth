@@ -6,14 +6,15 @@ Gem::Specification.new do |s|
   s.name = 'stealth-bandwidth'
   s.summary = 'Stealth Bandwidth SMS driver'
   s.description = 'Bandwidth.com SMS driver for Stealth.'
-  s.homepage = 'https://github.com/whoisblackops/stealth-bandwidth'
+  s.homepage = 'https://github.com/hellostealth/stealth-bandwidth'
   s.licenses = ['MIT']
   s.version = version
-  s.author = 'Mauricio Gomes'
-  s.email = 'mauricio@edge14.com'
+  s.authors = ['Mauricio Gomes', 'Emilie Morissette']
+  s.email = ['mauricio@edge14.com', 'emorissettegregoire@gmail.com']
 
-  s.add_dependency 'stealth', '~> 2.1'
+  s.add_dependency 'stealth', '>= 2.0.0.beta6'
   s.add_dependency 'http', '~> 4.1'
+  s.add_dependency 'oj', '~> 3.11'
 
   s.add_development_dependency 'rspec', '~> 3.6'
   s.add_development_dependency 'rspec_junit_formatter', '~> 0.3'

@@ -6,6 +6,8 @@ module Stealth
     module Bandwidth
       class ReplyHandler < Stealth::Services::BaseReplyHandler
 
+        ALPHA_ORDINALS = ('A'..'Z').to_a.freeze
+
         attr_reader :recipient_id, :reply
 
         def initialize(recipient_id: nil, reply: nil)
@@ -24,23 +26,24 @@ module Stealth
           if suggestions.present?
             translated_reply = [
               translated_reply,
-              'Reply with one of the following:'
-            ].join("\n")
-
-            puts "Translated reply after first pass: #{translated_reply}"
+              'Reply with:'
+            ].join("\n\n")
 
             suggestions.each_with_index do |suggestion, i|
               translated_reply = [
                 translated_reply,
-                "\"#{i}\" for #{suggestion}"
+                "\"#{ALPHA_ORDINALS[i]}\" for #{suggestion}"
               ].join("\n")
             end
-
-            puts "Translated reply after second pass: #{translated_reply}"
           end
 
           if buttons.present?
-
+            buttons.each do |button|
+              translated_reply = [
+                translated_reply,
+                button
+              ].join("\n\n")
+            end
           end
 
           format_response({ text: translated_reply })
@@ -49,25 +52,25 @@ module Stealth
         def image
           check_text_length
 
-          format_response({ text: reply['text'], media_url: reply['image_url'] })
+          format_response({ text: reply['text'], media: [reply['image_url']] })
         end
 
         def audio
           check_text_length
 
-          format_response({ text: reply['text'], media_url: reply['audio_url'] })
+          format_response({ text: reply['text'], media: [reply['audio_url']] })
         end
 
         def video
           check_text_length
 
-          format_response({ text: reply['text'], media_url: reply['video_url'] })
+          format_response({ text: reply['text'], media: [reply['video_url']] })
         end
 
         def file
           check_text_length
 
-          format_response({ text: reply['text'], media_url: reply['file_url'] })
+          format_response({ text: reply['text'], media: [reply['file_url']] })
         end
 
         def delay
@@ -85,8 +88,10 @@ module Stealth
           def format_response(response)
             sender_info = {
               from: Stealth.config.bandwidth.from_phone.to_s,
-              to: recipient_id
+              to: recipient_id,
+              applicationId: Stealth.config.bandwidth.application_id
             }
+
             response.merge(sender_info)
           end
 
@@ -101,19 +106,20 @@ module Stealth
           def generate_buttons(buttons:)
             return if buttons.blank?
 
-            buttons.map do |button|
+            sms_buttons = buttons.map do |button|
               case button['type']
               when 'url'
-                { button['text'] => button['url'] }
+                "#{button['text']}: #{button['url']}"
               when 'payload'
-                button_value = "Text #{button['payload'].upcase}"
-                { button['text'] => button_value }
+                "To #{button['text'].downcase}: Text #{button['payload'].upcase}"
               when 'call'
-                { button['text'] => button['phone_number'] }
+                "#{button['text']}: #{button['phone_number']}"
               else # Don't raise for unsupported buttons
                 next
               end
             end.compact
+
+            sms_buttons
           end
 
       end

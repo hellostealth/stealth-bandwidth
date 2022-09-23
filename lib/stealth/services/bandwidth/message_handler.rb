@@ -12,11 +12,16 @@ module Stealth
         end
 
         def coordinate
-          Stealth::Services::HandleMessageJob.perform_async(
-            'bandwidth',
-            params,
-            headers
-          )
+          case params.dig('message', 'direction')
+          when "in"
+            Stealth::Services::HandleMessageJob.perform_async(
+              'bandwidth',
+              params,
+              headers
+            )
+          when "out"
+            # Ignoring outbound messages
+          end
 
           # Relay our acceptance
           [202, 'Accepted']
@@ -24,17 +29,12 @@ module Stealth
 
         def process
           @service_message = ServiceMessage.new(service: 'bandwidth')
-          ### After V2
-          # service_message.sender_id = params.dig('message', 'from')
-          # service_message.target_id = Array(params.dig('message', 'to'))
-          # service_message.message = params.dig('message', 'text')
-          # service_message.timestamp = params.dig('message', 'time')
-          service_message.sender_id = params.dig('from')
-          service_message.target_id = Array(params.dig('to'))
-          service_message.message = params.dig('text')
-          service_message.timestamp = params.dig('time')
 
-          params['media']&.each do |attachment_url|
+          service_message.sender_id = params.dig('message', 'from')
+          service_message.target_id = params.dig('message', 'to').first
+          service_message.message = params.dig('message', 'text')
+          service_message.timestamp = params.dig('message', 'time')
+          params.dig('message', 'media')&.each do |attachment_url|
             service_message.attachments << {
               url: attachment_url
             }
