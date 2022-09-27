@@ -31,7 +31,7 @@ module Stealth
           @service_message = ServiceMessage.new(service: 'bandwidth')
 
           service_message.sender_id = params.dig('message', 'from')
-          service_message.target_id = params.dig('message', 'to').first
+          service_message.target_id = params.dig('message', 'to')
           service_message.message = params.dig('message', 'text')
           service_message.timestamp = params.dig('message', 'time')
           params.dig('message', 'media')&.each do |attachment_url|
