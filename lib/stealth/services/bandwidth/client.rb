@@ -5,6 +5,7 @@ require 'http'
 require 'stealth/services/bandwidth/message_handler'
 require 'stealth/services/bandwidth/reply_handler'
 require 'stealth/services/bandwidth/setup'
+require 'stealth/services/bandwidth/bandwidth_service_message'
 
 module Stealth
   module Services
