@@ -4,14 +4,18 @@ module Stealth
 
       class EventHandler
         def self.determine_event_type(request)
-          # WIP will handle calls and other events here
-          case request.params.dig(:_json)&.first&.dig(:type)
+          # Create a new instance of ServiceMessage with the request params and headers
+          service_message = Stealth::Services::Bandwidth::ServiceMessage.new(
+            params: request.params.dig(:_json)&.first,
+            headers: request.headers
+          ).process
+
+          # Determine the event type and include the service_message in the response
+          case service_message.event_type
           when 'message-received'
-            :text_message_receive
-          # when 'unsubscribe'
-          #   :unsubscribe
+            { type: :text_message_receive, service_message: service_message }
           else
-            :unknown_event
+            { type: :unknown_event }
           end
         end
       end
