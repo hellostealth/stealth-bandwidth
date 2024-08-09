@@ -15,7 +15,7 @@ module Stealth
           self.sender_id = params.dig('message', 'from')
           self.target_id = params.dig('to')
           self.message = params.dig('message', 'text')
-          self.event_type = params.dig('type')
+          self.service_event_type = params.dig('type')
           self.timestamp = params.dig('time')
 
           # Handle attachments if any

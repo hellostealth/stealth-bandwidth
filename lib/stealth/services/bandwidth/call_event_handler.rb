@@ -2,18 +2,18 @@ module Stealth
   module Services
     module Bandwidth
 
-      class EventHandler
+      class CallEventHandler
         def self.determine_event_type(request)
           # Create a new instance of ServiceMessage with the request params and headers
-          service_message = Stealth::Services::Bandwidth::ServiceMessage.new(
-            params: request.params.dig(:_json)&.first,
+          service_call = Stealth::Services::Bandwidth::ServiceCall.new(
+            params: request.params,
             headers: request.headers
           ).process
 
           # Determine the event type and include the service_message in the response
-          case service_message.event_type
-          when 'message-received'
-            { type: :text_message_receive, service_message: service_message }
+          case service_call.service_event_type
+          when 'initiate'
+            { type: :call_received, service_call: service_call }
           else
             { type: :unknown_event }
           end
