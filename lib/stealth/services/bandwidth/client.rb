@@ -2,7 +2,6 @@
 
 require 'http'
 
-# require 'stealth/services/bandwidth/message_handler'
 require 'stealth/services/bandwidth/setup'
 require 'stealth/services/bandwidth/event_handler'
 require 'stealth/services/bandwidth/reply_handler'
