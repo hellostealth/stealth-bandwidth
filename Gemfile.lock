@@ -1,5 +1,5 @@
 GIT
-  remote: git@github.com:hellostealth/stealth.git
+  remote: https://github.com/hellostealth/stealth.git
   revision: 1dcdc7d3fe8bf5851d10840ff9d8546f26248f95
   branch: 3.0-mountable
   specs:
