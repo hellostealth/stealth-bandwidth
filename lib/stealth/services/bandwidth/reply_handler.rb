@@ -10,19 +10,18 @@ module Stealth
 
         attr_reader :recipient_id, :reply, :translated_reply
 
-        def initialize(recipient_id: nil, reply: nil)
-          @recipient_id = recipient_id
+        def initialize(reply: nil, **args)
+          @recipient_id = args[:recipient_id]
           @reply = reply
         end
 
         def text
           check_text_length
+          @translated_reply = reply[:text]
 
-          @translated_reply = reply['text']
+          suggestions = reply[:suggestions]
 
-          suggestions = generate_suggestions(suggestions: reply['suggestions'])
-          buttons = generate_buttons(buttons: reply['buttons'])
-
+          buttons = generate_buttons(buttons: reply[:buttons])
           if suggestions.present?
             @translated_reply = [
               @translated_reply,
@@ -52,25 +51,25 @@ module Stealth
         def image
           check_text_length
 
-          format_response({ text: reply['text'], media: [reply['image_url']] })
+          format_response({ text: reply[:text], media: [reply[:image_url]] })
         end
 
         def audio
           check_text_length
 
-          format_response({ text: reply['text'], media: [reply['audio_url']] })
+          format_response({ text: reply[:text], media: [reply[:audio_url]] })
         end
 
         def video
           check_text_length
 
-          format_response({ text: reply['text'], media: [reply['video_url']] })
+          format_response({ text: reply[:text], media: [reply[:video_url]] })
         end
 
         def file
           check_text_length
 
-          format_response({ text: reply['text'], media: [reply['file_url']] })
+          format_response({ text: reply[:text], media: [reply[:file_url]] })
         end
 
         def delay
@@ -80,40 +79,32 @@ module Stealth
         private
 
           def check_text_length
-            if reply['text'].present? && reply['text'].size > 2048
+            if reply[:text].present? && reply[:text].size > 2048
               raise(ArgumentError, 'Text messages must be 2048 characters or less.')
             end
           end
 
           def format_response(response)
             sender_info = {
-              from: Stealth.config.bandwidth.from_phone.to_s,
+              from: Stealth.config.dig('bandwidth', 'from_phone'),
               to: recipient_id,
-              applicationId: Stealth.config.bandwidth.application_id
+              applicationId:  Stealth.config.dig('bandwidth', 'application_id')
             }
 
             response.merge(sender_info)
-          end
-
-          def generate_suggestions(suggestions:)
-            return if suggestions.blank?
-
-            mf = suggestions.collect do |suggestion|
-              suggestion['text']
-            end.compact
           end
 
           def generate_buttons(buttons:)
             return if buttons.blank?
 
             sms_buttons = buttons.map do |button|
-              case button['type']
+              case button[:type]
               when 'url'
-                "#{button['text']}: #{button['url']}"
+                "#{button[:text]}: #{button[:url]}"
               when 'payload'
-                "To #{button['text'].downcase}: Text #{button['payload'].upcase}"
+                "To #{button[:text].downcase}: Text #{button[:payload].upcase}"
               when 'call'
-                "#{button['text']}: #{button['phone_number']}"
+                "#{button[:text]}: #{button[:phone_number]}"
               else # Don't raise for unsupported buttons
                 next
               end
