@@ -24,6 +24,14 @@ module Stealth
                           .timeout(connect: 15, read: 30)
                           .basic_auth(user: username, pass: password)
                           .headers('Content-Type' => 'application/json; charset=utf-8')
+          # Set up proxy if one is configured
+          if proxy = URI(@endpoint).find_proxy
+            if proxy.user || proxy.password
+              @http_client = @http_client.via(proxy.host, proxy.port, proxy.user, proxy.password)
+            else
+              @http_client = @http_client.via(proxy.host, proxy.port)
+            end
+          end
         end
 
         def transmit
